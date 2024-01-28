@@ -1,8 +1,12 @@
 ; print String routine
 
 
+printString:
+   pusha
+   call print
+   popa
+   ret
 print:
-	pusha
     mov bx, 0
 .loop:
     lodsb
@@ -12,7 +16,6 @@ print:
     jmp .loop
 .done:
 	ret
-	popa
 
 printChar:
     mov ah, 0eh
