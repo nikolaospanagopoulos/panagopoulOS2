@@ -3,7 +3,7 @@ kernel:
    call changeColorPallete
    mov si, testStr
    call printString
-   call readUserKey
+   call getInput
 
 
 
@@ -30,18 +30,22 @@ include 'printString.asm'
 ;include the print hex routine
 include 'printHex.asm'
 
+reboot: ;warm reboot option
+  jmp 0xFFFF:0x0000 ;reset vector
+   
 
 getInput:
+  xor di, di  
   mov di, cmdString
 
 readUserKey:
-  mov ah, 0x00
-  int 16h
+  mov ax, 0x00
+  int 0x16
 
-  mov ah, 0eh
   cmp al, 0xD
   je runCmd
-  int 10h
+  mov ah, 0x0e
+  int 0x10
   mov [di], al
   inc di
   jmp readUserKey
@@ -51,6 +55,8 @@ runCmd:
   mov al, [cmdString]
   cmp al, 'A'
   je successFunc
+  cmp al, 'R'
+  je reboot
   cmp al, 'N'
   je endProgram
   jmp notFound
@@ -59,6 +65,7 @@ notFound:
   mov si, failure
   call printString
   jmp getInput
+  ret
 
 endProgram:
   cli
