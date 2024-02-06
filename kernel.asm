@@ -1,9 +1,9 @@
 kernel:
+mainMenu:
    call setVideoMode
    call changeColorPallete
    mov si, testStr
    call printString
-
    call getInput
 
 
@@ -11,24 +11,15 @@ kernel:
 
 
 
-setVideoMode:
-   mov ah, 0x00
-   mov al, 0x03
-   int 0x10
-   ret
 
-changeColorPallete:
-   mov ah, 0x0B
-   mov bh, 0x00 ;1 pallete, 0 background
-   mov bl, 0x04 ;color value
-   int 0x10
-   ret
-
+include './screenAsm/videoMode.asm'
 ;to print hex, move into dx the hex string
 ;include the print string routine
 include 'printString.asm'
 ;include the print hex routine
 include 'printHex.asm'
+
+include './printRegisters.asm'
 
 reboot: ;warm reboot option
   jmp 0xFFFF:0x0000 ;reset vector
@@ -55,6 +46,8 @@ runCmd:
   mov al, [cmdString]
   cmp al, 'A'
   je fileBrowser
+  cmp al, 'P'
+  je printRegistersVal
   cmp al, 'R'
   je reboot
   cmp al, 'N'
@@ -70,6 +63,20 @@ notFound:
 endProgram:
   cli
   hlt
+
+
+printRegistersVal:
+  call setVideoMode
+  call changeColorPallete
+  call printRegisters
+  mov si, goBackStr
+  call printString
+
+  mov ah, 0x00
+  int 0x16
+  jmp mainMenu
+
+
 
 fileBrowser:
   call setVideoMode
@@ -120,14 +127,20 @@ nextElement:
   jmp filetableLoop
 
 stop:
+  mov si, goBackStr
+  call printString
+  mov ah, 0x00
+  int 0x16
+  jmp mainMenu
   ret
 filetableHeading: db 'fileName           fileSector', 0xA, 0xD ,\
                      '--------           ----------', 0xA, 0xD, 0
 
 
-testStr: db 'Welcome to PanagopoulOs', 0xA, 0xD, '----------------------------------------------------------------------', 0xA, 0xD, 0xA, 0xD, 'A) File Program Browser', 0xA, 0xD, 'N) End Program',0xA, 0xD, 'R) Reboot',0xA,0xD,0
+testStr: db 'Welcome to PanagopoulOs', 0xA, 0xD, '----------------------------------------------------------------------', 0xA, 0xD, 0xA, 0xD, 'A) File Program Browser', 0xA, 0xD, 'N) End Program',0xA, 0xD, 'R) Reboot',0xA,0xD, 'P) Print Registers',0xA,0xD,0
 success:        db 0xA, 0xD, 'Command ran successfully!', 0xA, 0xD, 0
 failure:        db 0xA, 0xD, 'Oops! Something went wrong :(', 0xA, 0xD, 0
+goBackStr:      db 0xA,0xD,0xA, 0xD, 'Press any key to go back', 0xA, 0xD, 0
 cmdString:      db ''
 
 
