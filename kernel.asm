@@ -68,7 +68,14 @@ endProgram:
 printRegistersVal:
   call setVideoMode
   call changeColorPallete
+
+  mov si, registersPringHeading
+  call printString
+
   call printRegisters
+
+
+
   mov si, goBackStr
   call printString
 
@@ -141,6 +148,7 @@ testStr: db 'Welcome to PanagopoulOs', 0xA, 0xD, '------------------------------
 success:        db 0xA, 0xD, 'Command ran successfully!', 0xA, 0xD, 0
 failure:        db 0xA, 0xD, 'Oops! Something went wrong :(', 0xA, 0xD, 0
 goBackStr:      db 0xA,0xD,0xA, 0xD, 'Press any key to go back', 0xA, 0xD, 0
+registersPringHeading: db 0xA, 0xD, 0xA, 0xD, 'Register        Memory location',0xA,0xD,0
 cmdString:      db ''
 
 
