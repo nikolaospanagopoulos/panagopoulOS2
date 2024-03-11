@@ -8,7 +8,7 @@ setVideoMode:
 changeColorPallete:
    mov ah, 0x0B
    mov bh, 0x00 ;1 pallete, 0 background
-   mov bl, 0x04 ;color value
+   mov bl, 0x01 ;color value
    int 0x10
    ret
 

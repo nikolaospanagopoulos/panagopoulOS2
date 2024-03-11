@@ -18,6 +18,8 @@ include './screenAsm/videoMode.asm'
 include 'printString.asm'
 ;include the print hex routine
 include 'printHex.asm'
+;include graphics
+include './screenAsm/resetGraphics.asm'
 
 include './printRegisters.asm'
 
@@ -50,6 +52,8 @@ runCmd:
   je printRegistersVal
   cmp al, 'R'
   je reboot
+  cmp al, 'G'
+  je graphicsModeTest
   cmp al, 'N'
   je endProgram
   jmp notFound
@@ -64,6 +68,19 @@ endProgram:
   cli
   hlt
 
+
+graphicsModeTest:
+  call resetGraphics
+
+  ;write test pixel almost at middle of screen
+  mov ah, 0x0C  ;write pixel
+  mov al, 0x01  ;blue color
+  mov bh, 0x00  ;page #
+  mov cx, 0x84  ;column #
+  mov dx, 0x64  ;row #
+  int 0x10
+
+  ret
 
 printRegistersVal:
   call setVideoMode
@@ -144,7 +161,7 @@ filetableHeading: db 'fileName           fileSector', 0xA, 0xD ,\
                      '--------           ----------', 0xA, 0xD, 0
 
 
-testStr: db 'Welcome to PanagopoulOs', 0xA, 0xD, '----------------------------------------------------------------------', 0xA, 0xD, 0xA, 0xD, 'A) File Program Browser', 0xA, 0xD, 'N) End Program',0xA, 0xD, 'R) Reboot',0xA,0xD, 'P) Print Registers',0xA,0xD,0
+testStr: db 'Welcome to PanagopoulOs', 0xA, 0xD, '----------------------------------------------------------------------', 0xA, 0xD, 0xA, 0xD, 'A) File Program Browser', 0xA, 0xD, 'G) Test Graphics',0xA,0xD, 'N) End Program',0xA, 0xD, 'R) Reboot',0xA,0xD, 'P) Print Registers',0xA,0xD,0
 success:        db 0xA, 0xD, 'Command ran successfully!', 0xA, 0xD, 0
 failure:        db 0xA, 0xD, 'Oops! Something went wrong :(', 0xA, 0xD, 0
 goBackStr:      db 0xA,0xD,0xA, 0xD, 'Press any key to go back', 0xA, 0xD, 0
